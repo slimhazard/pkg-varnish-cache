@@ -2,11 +2,11 @@
 %global vd_rc %{?v_rc:0.%{?v_rc}.}
 %global debug_package %{nil}
 %global _use_internal_dependency_generator 0
-%global __find_provides %{_builddir}/%{srcname}/find-provides %__find_provides
+%global __find_provides %{_sourcedir}/find-provides %__find_provides
 
 
 Summary: High-performance HTTP accelerator
-Name:    varnish
+Name:    varnish-maxwait
 Version: %{versiontag}
 Release: %{?vd_rc}%{releasetag}%{?dist}
 License: BSD
@@ -33,15 +33,18 @@ Requires: logrotate
 Requires: redhat-rpm-config
 %endif
 
-Provides:  varnish-libs%{?_isa} = %{version}-%{release}
-Provides:  varnish-libs = %{version}-%{release}
+Provides:  varnish-maxwait-libs%{?_isa} = %{version}-%{release}
+Provides:  varnish-maxwait-libs = %{version}-%{release}
+Obsoletes: varnish-maxwait-libs
 Obsoletes: varnish-libs
 
-Provides:  varnish-docs = %{version}-%{release}
+Provides:  varnish-maxwait-docs = %{version}-%{release}
+Obsoletes: varnish-maxwait-docs
 Obsoletes: varnish-docs
 
-Provides:  varnish-debuginfo%{?_isa} = %{version}-%{release}
-Provides:  varnish-debuginfo = %{version}-%{release}
+Provides:  varnish-maxwait-debuginfo%{?_isa} = %{version}-%{release}
+Provides:  varnish-maxwait-debuginfo = %{version}-%{release}
+Obsoletes: varnish-maxwait-debuginfo
 Obsoletes: varnish-debuginfo
 
 
@@ -63,8 +66,9 @@ Group:     System Environment/Libraries
 Requires:  %{name}%{?_isa} = %{version}-%{release}
 Requires:  pkgconfig
 Requires:  python(abi) >= 3.4
-Provides:  varnish-libs-devel%{?_isa} = %{version}-%{release}
-Provides:  varnish-libs-devel = %{version}-%{release}
+Provides:  varnish-maxwait-libs-devel%{?_isa} = %{version}-%{release}
+Provides:  varnish-maxwait-libs-devel = %{version}-%{release}
+Obsoletes: varnish-maxwait-libs-devel
 Obsoletes: varnish-libs-devel
 
 
@@ -97,17 +101,17 @@ find %{buildroot}/%{_libdir}/ -name '*.la' -exec rm -f {} ';'
 mkdir -p %{buildroot}/var/lib/varnish
 mkdir -p %{buildroot}/var/log/varnish
 mkdir -p %{buildroot}/var/run/varnish
-mkdir -p %{buildroot}%{_datadir}/%{name}
+mkdir -p %{buildroot}%{_datadir}/varnish
 mkdir -p %{buildroot}%{_sysconfdir}/ld.so.conf.d/
 install -D -m 0644 etc/example.vcl %{buildroot}%{_sysconfdir}/varnish/default.vcl
-install -D -m 0644 varnish.logrotate %{buildroot}%{_sysconfdir}/logrotate.d/varnish
+install -D -m 0644 %{_sourcedir}/varnish.logrotate %{buildroot}%{_sysconfdir}/logrotate.d/varnish
 
 mkdir -p %{buildroot}%{_unitdir}
-install -D -m 0644 varnish.service %{buildroot}%{_unitdir}/varnish.service
-install -D -m 0644 varnishncsa.service %{buildroot}%{_unitdir}/varnishncsa.service
-install -D -m 0755 varnishreload %{buildroot}%{_sbindir}/varnishreload
+install -D -m 0644 %{_sourcedir}/varnish.service %{buildroot}%{_unitdir}/varnish.service
+install -D -m 0644 %{_sourcedir}/varnishncsa.service %{buildroot}%{_unitdir}/varnishncsa.service
+install -D -m 0755 %{_sourcedir}/varnishreload %{buildroot}%{_sbindir}/varnishreload
 
-echo %{_libdir}/%{name} > %{buildroot}%{_sysconfdir}/ld.so.conf.d/%{name}-%{_arch}.conf
+echo %{_libdir}/varnish > %{buildroot}%{_sysconfdir}/ld.so.conf.d/varnish-%{_arch}.conf
 
 
 %clean
@@ -118,17 +122,17 @@ rm -rf %{buildroot}
 %{_sbindir}/*
 %{_bindir}/*
 %{_libdir}/*.so.*
-%{_libdir}/%{name}
+%{_libdir}/varnish
 %{_var}/lib/varnish
 %{_mandir}/man1/*.1*
 %{_mandir}/man3/*.3*
 %{_mandir}/man7/*.7*
-%{_docdir}/%{name}/
-%{_datadir}/%{name}
+%{_docdir}/varnish/
+%{_datadir}/varnish
 %{_unitdir}/*
 %attr(-,varnishlog,varnish) %{_var}/log/varnish
-%exclude %{_datadir}/%{name}/vmodtool*
-%exclude %{_datadir}/%{name}/vsctool*
+%exclude %{_datadir}/varnish/vmodtool*
+%exclude %{_datadir}/varnish/vsctool*
 %doc README*
 %doc LICENSE
 %doc doc/html
@@ -137,15 +141,15 @@ rm -rf %{buildroot}
 %dir %{_sysconfdir}/varnish/
 %config(noreplace) %{_sysconfdir}/varnish/default.vcl
 %config(noreplace) %{_sysconfdir}/logrotate.d/varnish
-%config %{_sysconfdir}/ld.so.conf.d/%{name}-%{_arch}.conf
+%config %{_sysconfdir}/ld.so.conf.d/varnish-%{_arch}.conf
 
 
 %files devel
 %{_libdir}/lib*.so
-%{_includedir}/%{name}
+%{_includedir}/varnish
 %{_libdir}/pkgconfig/varnishapi.pc
-%{_datadir}/%{name}/vmodtool*
-%{_datadir}/%{name}/vsctool*
+%{_datadir}/varnish/vmodtool*
+%{_datadir}/varnish/vsctool*
 %{_datadir}/aclocal/*
 
 
@@ -179,5 +183,6 @@ exit 0
 
 
 %changelog
-* Thu Jul 24 2014 Varnish Software <opensource@varnish-software.com> - 3.0.0-1
-- This changelog is not in use. See doc/changes.rst for release notes.
+* Thu May 20 2021 Geoff Simmons <geoff@uplex.de> - 6.6.0-1
+- RPM for varnish-maxwait, Varnish 6.6.0 with the req_total_timeout
+  parameter and maxwait feature for ESI includes.

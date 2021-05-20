@@ -4,8 +4,10 @@
 
 set -e
 
-BUILD_DIR=$(dirname "$0")
-VERSION=${RPM_BUILD_ROOT##*varnish-}
+VER=6.6.0
+
+BUILD_DIR=$(dirname "$0")/../BUILD/varnish-${VER}
+VERSION=${RPM_BUILD_ROOT##*varnish-maxwait-}
 FIND_PROVIDES=$1
 shift
 
